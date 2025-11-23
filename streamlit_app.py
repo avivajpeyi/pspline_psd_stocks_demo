@@ -201,43 +201,6 @@ def _plot_returns(log_returns: pd.DataFrame) -> plt.Figure:
     return fig
 
 
-def _plot_psds_period(
-    freqs: np.ndarray, S: np.ndarray, tickers: list[str]
-) -> plt.Figure:
-    freqs_nz = freqs[1:]
-    periods = 1 / freqs_nz
-
-    fig, ax = plt.subplots(figsize=(10.5, 5.5))
-    for i, ticker in enumerate(tickers):
-        ax.semilogy(periods, S[1:, i, i], label=ticker, lw=1.9, alpha=0.95)
-
-    ax.set_title("PSD of Log-Returns (period domain)", pad=12)
-    ax.set_xlabel("Period (days / months / years)")
-    ax.set_ylabel("PSD")
-    ax.set_xscale("log")
-
-    xticks = [1, 2, 5, 10, 20, 30, 60, 90, 180, 365, 365 * 2, 365 * 5]
-    xtick_labels = [
-        "1d",
-        "2d",
-        "5d",
-        "10d",
-        "20d",
-        "1mo",
-        "2mo",
-        "3mo",
-        "6mo",
-        "1y",
-        "2y",
-        "5y",
-    ]
-    ax.set_xticks(xticks)
-    ax.set_xticklabels(xtick_labels)
-    ax.grid(ls=":", lw=1)
-    ax.legend()
-    fig.tight_layout()
-    return fig
-
 
 def _plot_coherence_matrix(
     freqs: np.ndarray,
@@ -480,7 +443,7 @@ def estimate_spectral_matrix(
 def _render_sidebar():
     st.sidebar.header("Configuration")
 
-    default_tickers = ["AAPL", "MSFT", "XOM"]
+    default_tickers = ["AAPL", "MSFT", "JPM", "BAC", "SPY"]
     tickers = st.sidebar.multiselect(
         "Tickers",
         options=list(TICKER_SECTORS.keys()),
@@ -505,9 +468,9 @@ def _render_sidebar():
 
     vi_steps = st.sidebar.slider(
         "VI steps",
-        min_value=1000,
+        min_value=5000,
         max_value=25000,
-        value=5000,
+        value=10000,
         step=1000,
         help="Number of gradient steps when VI-only is selected.",
         disabled=not only_vi,
@@ -606,23 +569,23 @@ def main() -> None:
 
         st.success(f"Inference complete. Results cached in {results_dir}.")
 
-        st.pyplot(_plot_psds_period(freqs, S, config["tickers"]))
+        # st.pyplot(_plot_psds_period(freqs, S, config["tickers"]))
 
-        with st.spinner("Rendering PSD matrix and coherence plots..."):
-            psd_path = Path(results_dir) / "finance_psd_matrix.png"
-            plot_psd_matrix(
-                idata=idata,
-                freq=freqs,
-                empirical_psd=empirical_psd,
-                outdir=str(results_dir),
-                filename="finance_psd_matrix.png",
-                diag_yscale="log",
-                offdiag_yscale="linear",
-                xscale="log",
-                show_coherence=True,
-                overlay_vi=True,
-            )
-            st.image(psd_path, caption="PSD matrix with coherence")
+        with st.spinner("Rendering coherence plots..."):
+            # psd_path = Path(results_dir) / "finance_psd_matrix.png"
+            # plot_psd_matrix(
+            #     idata=idata,
+            #     freq=freqs,
+            #     empirical_psd=empirical_psd,
+            #     outdir=str(results_dir),
+            #     filename="finance_psd_matrix.png",
+            #     diag_yscale="log",
+            #     offdiag_yscale="linear",
+            #     xscale="log",
+            #     show_coherence=True,
+            #     overlay_vi=True,
+            # )
+            # st.image(psd_path, caption="PSD matrix with coherence")
 
             coh_freqs, coh_payload = _extract_coherence_quantiles(idata)
             if coh_payload is not None and coh_freqs is not None:
