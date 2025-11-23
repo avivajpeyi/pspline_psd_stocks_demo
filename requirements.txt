@@ -1,4 +1,4 @@
-LogPSplinePSD
+LogPSplinePSD>=0.0.14
 streamlit
 yfinance
 matplotlib
