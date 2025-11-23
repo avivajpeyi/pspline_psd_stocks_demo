@@ -1,1 +1,7 @@
+LogPSplinePSD
 streamlit
+yfinance
+matplotlib
+pandas
+numpy
+arviz
